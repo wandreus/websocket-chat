@@ -1,10 +1,13 @@
 {
-    "scripts": {
-        "start": "node server"
-    },
-    "dependencies": {
-        "ejs": "^3.0.1",
-        "express": "^4.17.1",
-        "socket.io": "^2.3.0"
-    }
+  "name": "websocket-chat",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "https://github.com/wandreus/websocket-chat.git",
+  "author": "Wandreus Pereira <wandreus.pereira@outlook.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "ejs": "^3.0.1",
+    "express": "^4.17.1",
+    "socket.io": "^2.3.0"
+  }
 }

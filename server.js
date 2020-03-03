@@ -5,42 +5,31 @@ const app = express();
 const server = require('http').createServer(app);
 const io = require('socket.io')(server);
 
-// defini onde ficarão os arquivos publicos da aplicação
+// define onde ficarão nossos arquivos publicos
 app.use(express.static(path.join(__dirname, 'public')));
 
-// defini o caminho do view html
+// define o caminho do view html
 app.set('views', path.join(__dirname, 'public'));
 
-// define que o view é html, por que o padrão do node e o ejs
+// seta a ingene como html, pois o default é ejs
 app.engine('html', require('ejs').renderFile);
 
-// define valor de view engine
+// define o view index.html
 app.set('view engine', 'html');
 
-// define qual rota vai ser exibida quando site for acessado
+// criar a rota e aponta para o view
 app.use('/', (req, res) => res.render('index.html'));
 
-/* 
-    nesse ponto temos o servido funcionando da forma convecional
-    trafegando no protocolo http node as requisições são criadas e destruidas
-*/
-
-let arrayMessage = [];
-
-// observa toda vez que uma conexão socket for feita
+let arrayMessages = [];
+// usando socket.io chat real-time
 io.on('connection', socket => {
 
-    // envia todas as mensagens do server no reload
-    socket.emit('allMessage', arrayMessage)
+    socket.emit('historicMessages', arrayMessages);
 
-    // observa sempre o que evento e disparado
     socket.on('sendMessage', data => {
-        
-        arrayMessage.push(data);
-        // emit para todos os clientes conectados a nova mensagem
-        // tres principais metodos socket .on, .emit e broadcast.emit
-        socket.broadcast.emit('updateMessage', data);
-
+        arrayMessages.push(data);
+        // tres pincipais funções on, emit, broadcast.emit
+        socket.broadcast.emit('updateMessages', data);   
     });
 
 });

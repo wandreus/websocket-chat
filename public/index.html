@@ -1,58 +1,72 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Chat ❤</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"></script>
-  <link rel="stylesheet" href="./style.css" />
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta http-equiv="X-UA-Compatible" content="ie=edge">
+	<title>Chat real-time</title>
+	<link rel="manifest" href="./manifest.json" />
+	<link rel="stylesheet" href="./style.css" />
+	<script src="/socket.io/socket.io.js"></script>
 </head>
 
 <body>
-  <form id="chat">
-    <input type="text" name="username" id="" placeholder="Digite seu nome">
-    <ul class="messages"></ul>
-    <input type="text" name="message" id="" placeholder="Digite sua mensagem"><button type="submit">enviar</button>
-  </form>
+	<form name="chat">
+		<input type="text" name="username" placeholder="Digite seu nome">
+		<ul></ul>
+		<input type="text" name="messages" placeholder="Digite sua mensagem">
+		<button>enviar</button>
+	</form>
 
-  <script type="text/javascript">
+	<script type="text/javascript">
 
-    // cria um ouvinte do socket com nosso servidor
-    const url = window.location.href
-    const socket = io(url);
+        if ("serviceWorker" in navigator ) {
+            window.addEventListener("load", function() {
+                navigator.serviceWorker.register("./service-worker.js", { scope: "../" })
+            });
+        }
 
-    const $form = document.querySelector('#chat');
-    const $box = document.querySelector('.messages');
+		const url = window.location.href;
+		const socket = io(url);
 
-    const renderMessage = ({ name, message }) => {
-      const html = document.createElement('li');
-      html.innerHTML = `<strong>${name}</strong><br>${message}`;
-      $box.appendChild(html);
-    }
+		const $form = document.forms.chat;
+		const $box = document.querySelector('ul');
 
-    // fica assitindo o allMessage para exibir as menssgens no reload
-    socket.on('allMessage', (data) => data.map((item) => renderMessage(item)));
-    
-    // Atualiza cada mensagem enviada
-    socket.on('updateMessage', (data) => renderMessage(data));
+		const renderMessage = ({name, messages}) => {
+			const html = document.createElement('li');
+			html.innerHTML = `
+				<strong>${name}</strong>
+				<p>${messages}</p>
+			`
+			$box.appendChild(html);
+		}
 
-    // faz submit de envia a mensagem para o server
-    $form.addEventListener('submit', (e) => {
-      e.preventDefault();
+		socket.on('historicMessages', array => {
+			array.map(({name, messages}) => renderMessage({name, messages}))
+		})
 
-      const name = document.querySelector('input[name=username]').value;
-      const message = document.querySelector('input[name=message]').value;
+		socket.on('updateMessages', ({name, messages}) => renderMessage({name, messages}));
 
-      if (name.length && message.length) {
-        renderMessage({ name, message });
-        
-        // emit o sendMessage para o server
-        socket.emit('sendMessage', { name, message })
-      }
+		$form.addEventListener('submit', (e) => {
+			e.preventDefault();
 
-    })
-  </script>
+			const name = $form.username.value
+			const messages = $form.messages.value;
+
+			if(name.length && messages.length) {
+
+				socket.emit('sendMessage', {
+					name,
+					messages
+				});
+
+				renderMessage({name, messages});
+
+				$form.messages.value = '';
+			}
+			
+		})
+	</script>
 </body>
 
 </html>
