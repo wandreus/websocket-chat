@@ -25,18 +25,24 @@ app.use('/', (req, res) => res.render('index.html'));
     trafegando no protocolo http node as requisições são criadas e destruidas
 */
 
+let arrayMessage = [];
 
 // observa toda vez que uma conexão socket for feita
 io.on('connection', socket => {
 
+    // envia todas as mensagens do server no reload
+    socket.emit('allMessage', arrayMessage)
+
     // observa sempre o que evento e disparado
     socket.on('sendMessage', data => {
-        console.log('recebendo mensagem', data);
+        
+        arrayMessage.push(data);
         // emit para todos os clientes conectados a nova mensagem
         // tres principais metodos socket .on, .emit e broadcast.emit
         socket.broadcast.emit('updateMessage', data);
 
     });
-})
+
+});
 
 server.listen(3000);
