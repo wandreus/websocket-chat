@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chat ❤</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"></script>
+  <link rel="stylesheet" href="./style.css"/>
+</head>
+<body>
+  <form id="chat">
+    <input type="text" name="username" id="" placeholder="Digite seu nome">
+    <ul class="messages"></ul>
+    <input type="text" name="message" id="" placeholder="Digite sua mensagem"><button type="submit">enviar</button>
+  </form>
+
+  <script type="text/javascript">
+
+    // cria um ouvinte do socket com nosso servidor
+    const url = window.location.href
+    const socket = io(url);
+    const $form = document.querySelector('#chat');
+    const $box = document.querySelector('.messages');
+
+    socket.on('updateMessage', ({name, message}) => {
+        console.log('aaaaaaaaaaaaaaaaa', name, menssage);
+        const html = document.creatElement('li');
+        html.innerHTML = `<strong>${name}</strong><br>${message}`;
+        $box.appendChild(html);
+    })
+    
+    $form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const name = document.querySelector('input[name=username]').value;
+        const message = document.querySelector('input[name=message]').value;
+
+        if(name.length && message.length){
+            socket.emit('sendMessage', {name, message})
+        }
+
+    })
+  </script>
+</body>
+</html>
